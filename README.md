@@ -1,7 +1,7 @@
 # TLDP-Docs
 
-The public documentation site for the **TLDP API** (Tybrite Logistics Developer
-Platform), published with [Mintlify](https://mintlify.com) at
+Documentation for the **TLDP API** (Tybrite Logistics Developer Platform), built
+with [Mintlify](https://mintlify.com) and published at
 **https://tldp.tybritelabs.com/docs**.
 
 ## Structure
@@ -9,8 +9,8 @@ Platform), published with [Mintlify](https://mintlify.com) at
 ```
 TLDP-Docs/
 ├── docs.json                 # Mintlify config (theme + navigation)
-├── openapi.yaml              # API spec — drives the auto-generated API Reference
-├── sdk-source/               # Reference copy of the generated SDK src/ (read-only)
+├── openapi.yaml              # API spec — drives the API Reference
+├── sdk-source/               # Reference copy of the SDK source (read-only)
 ├── index.mdx                 # Landing
 ├── quickstart.mdx            # First request, end to end
 ├── authentication.mdx        # API keys: secret vs publishable, test vs live
@@ -19,7 +19,7 @@ TLDP-Docs/
 │   └── introduction.mdx      # Conventions + errors (the rest is from openapi.yaml)
 └── sdk/
     ├── introduction.mdx       # SDK install + client + idioms
-    └── api-reference/classes/ # HANDWRITTEN, one .mdx per SDK service
+    └── api-reference/classes/ # One page per SDK service
         ├── OrdersService.mdx
         ├── ShipmentsService.mdx
         ├── RatesService.mdx
@@ -30,26 +30,18 @@ TLDP-Docs/
         └── SystemService.mdx
 ```
 
-## The two kinds of reference
+## Two kinds of reference
 
-- **API Reference** (the `API Reference` tab) is **auto-generated** from
-  `openapi.yaml`. It updates whenever the spec is recopied here.
-- **TypeScript SDK** pages are **handwritten**. They document the SDK's actual
-  behavior and idioms — examples, return shapes, and gotchas — and are written
-  for external developers (no internal architecture). They must be **updated by
-  hand** when the SDK surface changes (a method added/removed/renamed, a param
-  or response shape change).
-
-## Keeping in sync
-
-`openapi.yaml` and `sdk-source/` are **copied from the TLDP monorepo** after any
-API change. The handwritten SDK pages are then updated by hand. See the TLDP
-monorepo's `CLAUDE.md` (the SDK → docs pipeline) and
-`tldp-typescript-sdk/MINTLIFY_CONFIGURATION.md` for the full workflow.
+- **API Reference** is generated from `openapi.yaml`.
+- **TypeScript SDK** pages are handwritten guides for the `@tybrite-labs/tldp-sdk`
+  client — examples, return shapes, and idioms.
 
 ## Develop locally
 
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint) and preview from
+the folder containing `docs.json`:
+
 ```bash
-npm i -g mintlify
-mintlify dev      # preview at http://localhost:3000
+npm i -g mint
+mint dev          # preview at http://localhost:3000
 ```
