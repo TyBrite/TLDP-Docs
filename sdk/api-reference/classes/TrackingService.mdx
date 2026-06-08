@@ -1,0 +1,66 @@
+---
+title: "Tracking"
+description: "Reference for the TrackingService class in the TLDP SDK."
+---
+
+The `TrackingService` class (accessed via `client.tracking`) answers the question "where is my parcel right now?". It offers a **public** lookup by tracking number (safe to call from a customer-facing page with a publishable key) and a **detailed events timeline** for shipments you own.
+
+```typescript
+import { TLDP } from '@tybrite-labs/tldp-sdk';
+
+// Public tracking can use a publishable key in the browser:
+const publicClient = new TLDP({ apiKey: 'tybrite_pk_test_...' });
+
+// Owner-level tracking needs a secret key on your backend:
+const client = new TLDP({ apiKey: 'tybrite_sk_test_...' });
+```
+
+## trackShipment
+
+Looks up a shipment by its **tracking number** and returns its current status plus, while the parcel is moving, the rider's live location.
+
+<Note>
+  This is a **public** endpoint — it works with a publishable key (`tybrite_pk_*`), so you can safely build a "track my order" page in the browser without exposing a secret key. It only reveals delivery-progress fields, not your full order data.
+</Note>
+
+```typescript
+const status = await publicClient.tracking.trackShipment({
+  trackingNumber: 'TLDP-7H3K9Q',
+});
+
+console.log(status.status);          // e.g. 'out_for_delivery'
+console.log(status.recipient_city);  // 'Nairobi'
+console.log(status.courier);         // courier name
+console.log(status.estimated_delivery);
+
+// Live rider position while in transit:
+if (status.rider_location) {
+  console.log(status.rider_location.lat, status.rider_location.lng);
+}
+```
+
+**Returns** the current status, recipient city, courier, estimated delivery, and a live `rider_location` while the parcel is in transit.
+
+<Tip>
+  The live rider location is only present while the shipment is actually on the move (out for delivery / in transit). Before pickup or after delivery it won't be included.
+</Tip>
+
+## getShipmentTracking
+
+Returns the full chronological **events timeline** for a shipment you own — every status transition from booking through delivery. Use this for detailed audit views or to drive a stepper UI.
+
+<Warning>
+  This requires a **secret key** because it returns the complete history for a shipment in your account. Don't call it from the browser — use [`trackShipment`](#trackshipment) for public-facing pages.
+</Warning>
+
+```typescript
+const tracking = await client.tracking.getShipmentTracking({
+  shipmentId: 'shp_a1b2c3',
+});
+
+for (const event of tracking.events ?? []) {
+  console.log(event.timestamp, event.status, event.description);
+}
+```
+
+**Returns** the detailed tracking-events timeline for the shipment, ordered chronologically.

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "TLDP API Documentation",
+  "theme": "luma",
+  "colors": {
+    "primary": "#4f46e5",
+    "light": "#818cf8",
+    "dark": "#4f46e5"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "index",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "webhooks"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "openapi": "openapi.yaml",
+        "groups": [
+          {
+            "group": "Reference",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "TypeScript SDK",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "sdk/introduction"
+            ]
+          },
+          {
+            "group": "Orders & Fulfilment",
+            "pages": [
+              "sdk/api-reference/classes/OrdersService",
+              "sdk/api-reference/classes/ShipmentsService",
+              "sdk/api-reference/classes/RatesService"
+            ]
+          },
+          {
+            "group": "Tracking & Delivery",
+            "pages": [
+              "sdk/api-reference/classes/TrackingService",
+              "sdk/api-reference/classes/ProofOfDeliveryService"
+            ]
+          },
+          {
+            "group": "Reverse Logistics",
+            "pages": [
+              "sdk/api-reference/classes/ReturnsService"
+            ]
+          },
+          {
+            "group": "Integrations & System",
+            "pages": [
+              "sdk/api-reference/classes/WebhooksService",
+              "sdk/api-reference/classes/SystemService"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "npm",
+        "href": "https://www.npmjs.com/package/@tybrite-labs/tldp-sdk"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://tldp.tybritelabs.com"
+    }
+  }
+}

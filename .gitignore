@@ -1,0 +1,5 @@
+node_modules
+.mintlify
+*.log
+.DS_Store
+package-lock.json

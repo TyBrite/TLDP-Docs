@@ -1,0 +1,50 @@
+---
+title: "Proof of Delivery"
+description: "Reference for the ProofOfDeliveryService class in the TLDP SDK."
+---
+
+The `ProofOfDeliveryService` class (accessed via `client.proofOfDelivery`) retrieves the captured proof that a parcel reached its recipient — a photo, a one-time PIN confirmation, or a signature, depending on how the rider closed out the delivery.
+
+```typescript
+import { TLDP } from '@tybrite-labs/tldp-sdk';
+
+const client = new TLDP({ apiKey: 'tybrite_sk_test_...' });
+```
+
+## getProofOfDelivery
+
+Returns the proof-of-delivery (POD) record for a **delivered** shipment. Use it to confirm successful handover, resolve disputes, or attach evidence to your own order records.
+
+<Warning>
+  POD is only available once a shipment reaches the `delivered` status. Calling it on a shipment that hasn't been delivered yet returns no proof.
+</Warning>
+
+```typescript
+const pod = await client.proofOfDelivery.getProofOfDelivery({
+  shipmentId: 'shp_a1b2c3',
+});
+
+console.log(pod.type);            // 'photo' | 'otp' | 'signature'
+console.log(pod.recipient_name);  // who received it
+console.log(pod.captured_by);     // the rider/agent who captured it
+console.log(pod.captured_at);     // timestamp of handover
+
+// Depending on the POD type:
+if (pod.type === 'photo')     console.log(pod.image_url);
+if (pod.type === 'signature') console.log(pod.signature_url);
+```
+
+**Returns** the POD object:
+
+| Field | Description |
+| :--- | :--- |
+| `type` | How delivery was confirmed: `photo`, `otp`, or `signature`. |
+| `recipient_name` | Name of the person who received the parcel. |
+| `captured_by` | The rider or agent who captured the proof. |
+| `captured_at` | Timestamp of the handover. |
+| `image_url` | Photo of the delivered parcel (when `type` is `photo`). |
+| `signature_url` | Captured signature image (when `type` is `signature`). |
+
+<Note>
+  Image and signature URLs are time-limited links to secure storage. Fetch or persist the asset promptly rather than caching the URL long-term.
+</Note>
