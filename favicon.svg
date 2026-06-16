@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- TLDP placeholder favicon — GC blue. Replace with the real mark when ready. -->
+  <rect width="64" height="64" rx="14" fill="#3b82f6"/>
+  <!-- parcel / package glyph -->
+  <g fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 14 L50 23 L50 41 L32 50 L14 41 L14 23 Z"/>
+    <path d="M14 23 L32 32 L50 23"/>
+    <path d="M32 32 L32 50"/>
+  </g>
+</svg>

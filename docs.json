@@ -1,13 +1,17 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "name": "TLDP API Documentation",
-  "theme": "luma",
+  "theme": "mint",
   "colors": {
-    "primary": "#4f46e5",
-    "light": "#818cf8",
-    "dark": "#4f46e5"
+    "primary": "#3b82f6",
+    "light": "#60a5fa",
+    "dark": "#3b82f6"
   },
   "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/branding/tldp-long-blue.svg",
+    "dark": "/branding/tldp-long-white.svg"
+  },
   "navigation": {
     "tabs": [
       {
@@ -80,19 +84,53 @@
           }
         ]
       }
-    ]
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Dashboard",
+          "href": "https://tldp.tybritelabs.com",
+          "icon": "gauge"
+        },
+        {
+          "anchor": "npm",
+          "href": "https://www.npmjs.com/package/@tybrite-labs/tldp-sdk",
+          "icon": "npm"
+        },
+        {
+          "anchor": "Support",
+          "href": "mailto:support@tybritelabs.com",
+          "icon": "envelope"
+        }
+      ]
+    }
   },
   "navbar": {
     "links": [
       {
-        "label": "npm",
-        "href": "https://www.npmjs.com/package/@tybrite-labs/tldp-sdk"
+        "label": "Dashboard",
+        "href": "https://tldp.tybritelabs.com"
       }
-    ]
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "/quickstart"
+    }
   },
   "footer": {
     "socials": {
-      "website": "https://tldp.tybritelabs.com"
+      "website": "https://tldp.tybritelabs.com",
+      "github": "https://github.com/tybrite"
     }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "cursor"
+    ]
   }
 }

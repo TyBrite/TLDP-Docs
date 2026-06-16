@@ -29,6 +29,7 @@ const { quotes, meta } = await client.rates.calculateRates({
     weight_kg: 1.2,
     declared_value: 4500,        // optional, for insurance/liability
     service_level: 'standard',   // optional: 'standard' | 'express' | ...
+    delivery_method: 'last_mile',// optional: 'last_mile' (door) | 'pickup'
     special_flags: ['fragile'],  // optional
   },
 });
@@ -41,6 +42,31 @@ console.log(cheapest.courier_name, cheapest.total_price, cheapest.currency);
 // requestBody: { rate_quote_id: cheapest.quote_id }
 ```
 
+### Pricing by exact location
+
+For each endpoint, instead of (or alongside) `city` + `zone`, you can pass exact coordinates or a
+free-form place name. Coordinates take precedence; a `place` string is resolved to coordinates for
+you. When a point is supplied, each courier's price is matched to the bounded service area it falls
+in — more accurate than a city name alone. `city` is always required as the coarse filter.
+
+```typescript
+const { quotes } = await client.rates.calculateRates({
+  requestBody: {
+    origin:      { city: 'Nairobi', lat: -1.2864, lng: 36.8172 },  // exact point
+    destination: { city: 'Nairobi', place: 'Upperhill, Nairobi' }, // resolved to a point
+    weight_kg: 2,
+    delivery_method: 'last_mile',
+  },
+});
+```
+
+<Note>
+  **Door-delivery distance charge.** When `delivery_method` is `last_mile` and the destination is
+  beyond a courier's service area, the quote may include a **`distance_overage`** in `breakdown` —
+  a courier-set surcharge for the extra distance. `pickup` (collected at a station) is never charged
+  this. Inside the area, or within a courier's free allowance past its edge, it is `0`.
+</Note>
+
 **Returns** `{ quotes, meta }`. Each quote includes:
 
 | Field | Description |
@@ -52,7 +78,7 @@ console.log(cheapest.courier_name, cheapest.total_price, cheapest.currency);
 | `total_price` / `currency` | What this delivery costs. |
 | `estimated_delivery_hours` | Expected transit time in hours. |
 | `estimated_delivery_date` | Expected delivery date. |
-| `breakdown` | Line-by-line price components. |
+| `breakdown` | Line-by-line price components — incl. `distance_overage` (door-delivery distance surcharge; `0` for pickup or within the service area). |
 | `valid_until` | When the quote expires — re-quote after this. |
 
 <Warning>

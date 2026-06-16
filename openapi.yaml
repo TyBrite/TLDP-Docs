@@ -107,7 +107,7 @@ info:
     name: Proprietary
     url: https://tybritelabs.com/terms
 servers:
-  - url: https://api.tybritelabs.com
+  - url: https://api.tybritelabs.com/logistics
     description: Production (use _live_ keys) and Sandbox (use _test_ keys)
 security:
   - BearerAuth: []
