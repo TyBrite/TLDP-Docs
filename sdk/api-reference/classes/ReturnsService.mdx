@@ -44,6 +44,23 @@ const ret = await client.returns.getReturn({ returnId: 'ret_x1y2z3' });
 
 **Returns** the return object directly.
 
+## listReturns
+
+Lists your returns, newest first. Page with `limit` (1–100, default 50) and `offset`; the response's `pagination` block tells you whether more pages exist and the `next_offset` to request.
+
+```typescript
+let offset = 0;
+const all = [];
+for (;;) {
+  const { returns, pagination } = await client.returns.listReturns({ limit: 100, offset });
+  all.push(...returns);
+  if (!pagination.has_more) break;
+  offset = pagination.next_offset;
+}
+```
+
+**Returns** `{ returns, pagination }` — a page of returns plus `{ limit, offset, has_more, next_offset }`.
+
 ## approveReturn
 
 Approves the return and chooses how it will be resolved. Approving creates a **reverse shipment** to collect the item from the customer.

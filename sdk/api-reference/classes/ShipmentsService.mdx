@@ -48,6 +48,13 @@ const { shipment } = await client.shipments.createShipment({
 console.log(shipment.id, shipment.tracking_number);
 ```
 
+`recipient.name`, `recipient.phone` and `recipient.address` are required — they are stored on
+the shipment and appear on the label. A request missing any of them is rejected with a `400`
+naming the fields. The sender's equivalents are optional and fall back to the quote's origin.
+
+Passing an `idempotencyKey` makes the call safe to retry: repeating a key returns the shipment
+the first call created rather than booking a second one.
+
 <Tip>
   Always pass an `idempotencyKey` — on a transient network failure the SDK can retry safely and you'll get the original shipment back instead of a duplicate booking.
 </Tip>

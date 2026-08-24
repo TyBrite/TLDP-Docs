@@ -42,7 +42,33 @@ const { order } = await client.orders.createOrder({
 console.log(order.id, order.status); // 'pending_fulfilment'
 ```
 
+Pass an `idempotencyKey` so a network retry can't accidentally create two orders — a repeat call with the same key returns the original order.
+
+```typescript
+const { order } = await client.orders.createOrder({
+  idempotencyKey: `create-ORD-10293-${Date.now()}`,
+  requestBody: { /* … */ },
+});
+```
+
 **Returns** `{ order }` — the wrapped order object. Read the id from `order.id`.
+
+## listOrders
+
+Lists your orders, newest first. Page with `limit` (1–100, default 50) and `offset`; the response's `pagination` block tells you whether more pages exist and the `next_offset` to request.
+
+```typescript
+let offset = 0;
+const all = [];
+for (;;) {
+  const { orders, pagination } = await client.orders.listOrders({ limit: 100, offset });
+  all.push(...orders);
+  if (!pagination.has_more) break;
+  offset = pagination.next_offset;
+}
+```
+
+**Returns** `{ orders, pagination }` — a page of orders plus `{ limit, offset, has_more, next_offset }`.
 
 ## getOrder
 

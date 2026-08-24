@@ -7,7 +7,24 @@
     "light": "#60a5fa",
     "dark": "#3b82f6"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/branding/tldp-icon.png",
+  "seo": {
+    "metatags": {
+      "og:site_name": "TLDP Documentation",
+      "og:title": "TLDP — one API for logistics",
+      "og:description": "Quote, ship, track and return across many couriers through a single API.",
+      "og:image": "/branding/og-image.png",
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:type": "website",
+      "og:locale": "en_GB",
+      "twitter:card": "summary_large_image",
+      "twitter:title": "TLDP — one API for logistics",
+      "twitter:description": "Quote, ship, track and return across many couriers through a single API.",
+      "twitter:image": "/branding/og-image.png"
+    },
+    "indexing": "all"
+  },
   "logo": {
     "light": "/branding/tldp-long-blue.svg",
     "dark": "/branding/tldp-long-white.svg"
@@ -23,6 +40,18 @@
               "index",
               "quickstart",
               "authentication"
+            ]
+          },
+          {
+            "group": "How TLDP Works",
+            "pages": [
+              "how-tldp-works/overview",
+              "how-tldp-works/pricing",
+              "how-tldp-works/geography",
+              "how-tldp-works/request-lifecycle",
+              "how-tldp-works/dispatch",
+              "how-tldp-works/caching",
+              "how-tldp-works/returns"
             ]
           },
           {

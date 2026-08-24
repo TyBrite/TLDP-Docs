@@ -1,12 +1,9 @@
 # ============================================================================
-# GENERATED FILE — DO NOT EDIT DIRECTLY
+# TLDP API — OpenAPI specification
 #
-# Bundled output of openapi/root.yaml. Consumed by:
-#   - The TLDP TypeScript SDK generator (tldp-typescript-sdk)
-#   - API documentation
-#
-# To update: edit files in openapi/ and run `npm run spec:bundle`
-# To validate: `npm run spec:validate`
+# The complete, single-file API reference. It is generated from the live API
+# definition, so it stays in sync with what the API actually serves. Please
+# don't hand-edit it — it is regenerated, and manual changes are overwritten.
 # ============================================================================
 
 openapi: 3.1.0
@@ -130,7 +127,7 @@ tags:
     description: Health and service metadata.
 externalDocs:
   description: TLDP Documentation
-  url: https://docs.tybritelabs.com
+  url: https://tldp.tybritelabs.com/docs
 paths:
   /:
     get:
@@ -146,6 +143,25 @@ paths:
             application/json:
               schema:
                 type: object
+              example:
+                name: TLDP API
+                version: v1
+                documentation: https://tldp.tybritelabs.com/docs
+                endpoints:
+                  - prefix: /v1/rates
+                    description: Rate calculation
+                  - prefix: /v1/shipments
+                    description: Shipment management
+                  - prefix: /v1/tracking
+                    description: Public + detailed tracking
+                  - prefix: /v1/pod
+                    description: Proof of delivery
+                  - prefix: /v1/webhooks
+                    description: Webhook endpoint management
+                  - prefix: /v1/orders
+                    description: Customer orders + fulfilment
+                  - prefix: /v1/returns
+                    description: Returns + exchanges (reverse logistics)
         '429':
           $ref: '#/components/responses/RateLimited'
         '500':
@@ -164,6 +180,10 @@ paths:
             application/json:
               schema:
                 type: object
+              example:
+                status: healthy
+                service: tldp-api-gateway
+                version: v1
         '429':
           $ref: '#/components/responses/RateLimited'
         '503':
@@ -183,6 +203,19 @@ paths:
         courier tier. The 10% platform commission is already included in
         `total_price`. Each `quote_id` is valid for 2 minutes and is required to
         create a shipment.
+
+        **Precise pricing by location.** For each endpoint you may pass `zone` (a named
+        pricing area), exact `lat`/`lng` coordinates, or a free-form `place` string —
+        coordinates take precedence, then a place name is resolved to coordinates
+        automatically. When coordinates are supplied, each courier's price is matched to
+        the bounded service area the point falls in (more accurate than a city name alone).
+        `city` is always required as the coarse filter.
+
+        **Door-delivery distance charge.** When `delivery_method` is `last_mile` (door
+        delivery) and the destination lies beyond a courier's service area, the quote may
+        include a `distance_overage` — a courier-set surcharge for distance past the area,
+        shown in `breakdown.distance_overage`. Pickup-station deliveries are never charged
+        this surcharge.
       requestBody:
         required: true
         content:
@@ -203,6 +236,16 @@ paths:
                       type: string
                     zone:
                       type: string
+                      description: Named pricing area within the city.
+                    place:
+                      type: string
+                      description: Free-form place/area, resolved to coordinates.
+                    lat:
+                      type: number
+                      description: Latitude; takes precedence over place/zone for area matching.
+                    lng:
+                      type: number
+                      description: Longitude; takes precedence over place/zone for area matching.
                 destination:
                   type: object
                   required:
@@ -212,6 +255,16 @@ paths:
                       type: string
                     zone:
                       type: string
+                      description: Named pricing area within the city.
+                    place:
+                      type: string
+                      description: Free-form place/area, resolved to coordinates.
+                    lat:
+                      type: number
+                      description: Latitude; takes precedence over place/zone for area matching.
+                    lng:
+                      type: number
+                      description: Longitude; takes precedence over place/zone for area matching.
                 weight_kg:
                   type: number
                   example: 5
@@ -219,6 +272,13 @@ paths:
                   type: number
                 service_level:
                   $ref: '#/components/schemas/ServiceLevel'
+                delivery_method:
+                  type: string
+                  enum:
+                    - last_mile
+                    - pickup
+                  default: last_mile
+                  description: '`last_mile` = delivered to the recipient''s door (may incur a distance charge); `pickup` = collected at a pickup station (no distance charge).'
                 special_flags:
                   type: array
                   items:
@@ -248,6 +308,87 @@ paths:
                         type: string
                       count:
                         type: integer
+              example:
+                quotes:
+                  - quote_id: quote_1c80aeaced2846beb4d6a02ecd08ce19
+                    courier_id: 6a2d4db2-c385-47ba-a146-a96856f6b199
+                    courier_name: Sendy
+                    courier_tier: gold
+                    service_level: standard
+                    total_price: 291.5
+                    currency: KES
+                    estimated_delivery_hours: 24
+                    estimated_delivery_date: '2026-08-25T08:51:56.474317+00:00'
+                    breakdown:
+                      base_rate: 220
+                      weight_surcharge: 45
+                      zone_addon: 0
+                      service_multiplier: 1
+                      special_surcharges: '[]'
+                      distance_overage: 0
+                      courier_subtotal: 265
+                      platform_fee: 26.5
+                    valid_until: '2026-08-24T08:53:56.474317+00:00'
+                  - quote_id: quote_0008992ff6114ec8b5a5c9e888cc3377
+                    courier_id: 6a2d4db2-c385-47ba-a146-a96856f6b199
+                    courier_name: Sendy
+                    courier_tier: gold
+                    service_level: same_day
+                    total_price: 772.2
+                    currency: KES
+                    estimated_delivery_hours: 6
+                    estimated_delivery_date: '2026-08-24T14:51:56.474317+00:00'
+                    breakdown:
+                      base_rate: 300
+                      weight_surcharge: 100
+                      zone_addon: 50
+                      service_multiplier: 1.2
+                      special_surcharges: '[]'
+                      distance_overage: 0
+                      courier_subtotal: 702
+                      platform_fee: 70.2
+                    valid_until: '2026-08-24T08:53:56.474317+00:00'
+                  - quote_id: quote_59e736831904450cbd29408a511d83b3
+                    courier_id: 180f9109-0cd9-439d-8cba-9c7442515455
+                    courier_name: G4S
+                    courier_tier: gold
+                    service_level: express
+                    total_price: 676.5
+                    currency: KES
+                    estimated_delivery_hours: 8
+                    estimated_delivery_date: '2026-08-24T16:51:56.474317+00:00'
+                    breakdown:
+                      base_rate: 350
+                      weight_surcharge: 60
+                      zone_addon: 0
+                      service_multiplier: 1.5
+                      special_surcharges: '[]'
+                      distance_overage: 0
+                      courier_subtotal: 615
+                      platform_fee: 61.5
+                    valid_until: '2026-08-24T08:53:56.474317+00:00'
+                  - quote_id: quote_008dcc973c5744539c9b6608022f7477
+                    courier_id: 180f9109-0cd9-439d-8cba-9c7442515455
+                    courier_name: G4S
+                    courier_tier: gold
+                    service_level: standard
+                    total_price: 264
+                    currency: KES
+                    estimated_delivery_hours: 24
+                    estimated_delivery_date: '2026-08-25T08:51:56.474317+00:00'
+                    breakdown:
+                      base_rate: 200
+                      weight_surcharge: 40
+                      zone_addon: 0
+                      service_multiplier: 1
+                      special_surcharges: '[]'
+                      distance_overage: 0
+                      courier_subtotal: 240
+                      platform_fee: 24
+                    valid_until: '2026-08-24T08:53:56.474317+00:00'
+                meta:
+                  request_id: req_e7e41a955ae2417a82c5053c
+                  count: 4
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -319,7 +460,7 @@ paths:
                   type: string
                   example: quote_abc123
                 recipient:
-                  $ref: '#/components/schemas/Address'
+                  $ref: '#/components/schemas/RecipientAddress'
                 sender:
                   $ref: '#/components/schemas/Address'
                 parcel:
@@ -357,6 +498,27 @@ paths:
                 properties:
                   shipment:
                     $ref: '#/components/schemas/Shipment'
+              example:
+                shipment:
+                  id: 00f10705-1bb4-4d46-aee2-e2ed3f43f414
+                  tracking_number: TLDP-20260824-0342
+                  status: pending
+                  created_at: '2026-08-24T08:51:59.249476+00:00'
+                  updated_at: '2026-08-24T08:51:59.249476+00:00'
+                  service_level: standard
+                  recipient:
+                    name: Jane Wanjiru
+                    phone: 254712345678
+                    city: Nakuru
+                  pricing:
+                    total: 291.5
+                    currency: KES
+                  timeline:
+                    created_at: '2026-08-24T08:51:59.249476+00:00'
+                    picked_up_at: null
+                    delivered_at: null
+                    estimated_delivery: '2026-08-25T08:51:56.474317+00:00'
+                  tracking_url: https://tldp.tybritelabs.com/track/TLDP-20260824-0342
         '201':
           description: Shipment created.
           content:
@@ -366,6 +528,27 @@ paths:
                 properties:
                   shipment:
                     $ref: '#/components/schemas/Shipment'
+              example:
+                shipment:
+                  id: 00f10705-1bb4-4d46-aee2-e2ed3f43f414
+                  tracking_number: TLDP-20260824-0342
+                  status: pending
+                  created_at: '2026-08-24T08:51:59.249476+00:00'
+                  updated_at: '2026-08-24T08:51:59.249476+00:00'
+                  service_level: standard
+                  recipient:
+                    name: Jane Wanjiru
+                    phone: 254712345678
+                    city: Nakuru
+                  pricing:
+                    total: 291.5
+                    currency: KES
+                  timeline:
+                    created_at: '2026-08-24T08:51:59.249476+00:00'
+                    picked_up_at: null
+                    delivered_at: null
+                    estimated_delivery: '2026-08-25T08:51:56.474317+00:00'
+                  tracking_url: https://tldp.tybritelabs.com/track/TLDP-20260824-0342
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -396,6 +579,27 @@ paths:
                 properties:
                   shipment:
                     $ref: '#/components/schemas/Shipment'
+              example:
+                shipment:
+                  id: 00f10705-1bb4-4d46-aee2-e2ed3f43f414
+                  tracking_number: TLDP-20260824-0342
+                  status: pending
+                  created_at: '2026-08-24T08:51:59.249476+00:00'
+                  updated_at: '2026-08-24T08:51:59.249476+00:00'
+                  service_level: standard
+                  recipient:
+                    name: Jane Wanjiru
+                    phone: 254712345678
+                    city: Nakuru
+                  pricing:
+                    total: 291.5
+                    currency: KES
+                  timeline:
+                    created_at: '2026-08-24T08:51:59.249476+00:00'
+                    picked_up_at: null
+                    delivered_at: null
+                    estimated_delivery: '2026-08-25T08:51:56.474317+00:00'
+                  tracking_url: https://tldp.tybritelabs.com/track/TLDP-20260824-0342
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -515,6 +719,108 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  shipment_id:
+                    type: string
+                    format: uuid
+                  tracking_number:
+                    type: string
+                  status:
+                    $ref: '#/components/schemas/ShipmentStatus'
+                  full_timeline:
+                    type: object
+                    description: |
+                      Each field is the moment the shipment entered that state, or null if it
+                      has not. `estimated_delivery` is the projection made when the shipment
+                      was created.
+                    properties:
+                      created_at:
+                        type: string
+                        format: date-time
+                      payment_confirmed_at:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                      assigned_at:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                      picked_up_at:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                      in_transit_at:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                      delivered_at:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                      estimated_delivery:
+                        type:
+                          - string
+                          - 'null'
+                        format: date-time
+                  events:
+                    type: array
+                    description: Scan events in chronological order, oldest first.
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        created_at:
+                          type: string
+                          format: date-time
+                        event_type:
+                          type: string
+                        description:
+                          type: string
+                        location_text:
+                          type:
+                            - string
+                            - 'null'
+                        lat:
+                          type:
+                            - number
+                            - 'null'
+                        lng:
+                          type:
+                            - number
+                            - 'null'
+                        metadata:
+                          type: object
+                          additionalProperties: true
+              example:
+                shipment_id: ecc15f0f-6219-4351-ade1-83d78da7d9c7
+                tracking_number: TLDP-20260824-0412
+                status: pending
+                full_timeline:
+                  created_at: '2026-08-24T09:33:28.757338+00:00'
+                  payment_confirmed_at: null
+                  assigned_at: null
+                  picked_up_at: null
+                  in_transit_at: null
+                  delivered_at: null
+                  estimated_delivery: '2026-08-25T09:33:28.268154+00:00'
+                events:
+                  - id: 53129f01-b2f1-4d19-bdd1-71a464e111ae
+                    created_at: '2026-08-24T09:33:28.757338+00:00'
+                    event_type: pending
+                    description: Shipment created
+                    location_text: Nairobi
+                    lat: null
+                    lng: null
+                    metadata: '{}'
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -548,6 +854,8 @@ paths:
                   verified_at: '2026-06-07T16:30:00Z'
                   data:
                     recipient_name: John Doe
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -568,6 +876,11 @@ paths:
         it later with a shipment. Pass `items[]` to record the cart line items (TLDP is a
         standalone order store — items are auditable and visible across the platform).
         Requires a secret (sk_) key. Emits an `order.created` webhook.
+
+        Pass an `Idempotency-Key` header to make retries safe: repeating the same key
+        returns the original order instead of creating a duplicate.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -663,13 +976,56 @@ paths:
       tags:
         - Orders
       summary: List your orders
+      description: |
+        List your orders, newest first. Page with `limit` (default 50, max 100) and `offset`;
+        the response's `pagination` block tells you whether more pages exist and the
+        `next_offset` to request.
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
       responses:
         '200':
-          description: Orders.
+          description: A page of orders.
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                orders:
+                  - id: 7c827437-7cf6-46ef-b587-b02f1741b487
+                    status: fulfilled
+                    source: storefront
+                    reference: SB-1787560387174
+                    delivery_method: last_mile
+                    recipient_name: Sandbox Cust
+                    recipient_city: Nairobi
+                    shipment_id: 5a1636bb-7802-4407-843e-7ed804408977
+                    created_at: '2026-08-24T08:33:08.720398+00:00'
+                  - id: d6eecd3a-d1eb-4c5d-8e0b-8cda3816f5bd
+                    status: fulfilled
+                    source: storefront
+                    reference: SB-1787168314966
+                    delivery_method: last_mile
+                    recipient_name: Sandbox Cust
+                    recipient_city: Nairobi
+                    shipment_id: 3b6af0f9-aafd-45bf-8b1b-cbc67b7f520e
+                    created_at: '2026-08-19T19:38:39.872939+00:00'
+                meta:
+                  count: 2
+                pagination:
+                  limit: 2
+                  offset: 0
+                  has_more: true
+                  next_offset: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '429':
@@ -797,6 +1153,46 @@ paths:
                 properties:
                   order:
                     type: object
+              example:
+                order:
+                  id: 1621951b-3e21-4330-a784-ed5965203098
+                  merchant_company_id: 7d94c9e8-0000-0000-0000-000000000000
+                  end_customer_id: null
+                  source: manual
+                  status: pending_fulfilment
+                  reference: SPEC-EX-1787561524230-C
+                  item_description: Running shoes
+                  declared_value: 5000
+                  weight_kg: 2
+                  recipient_name: Grace Njeri
+                  recipient_phone: 254712000333
+                  recipient_email: null
+                  recipient_address: Ngong Road, Nairobi
+                  recipient_city: Nairobi
+                  recipient_lat: null
+                  recipient_lng: null
+                  origin_city: Nairobi
+                  origin_lat: null
+                  origin_lng: null
+                  chosen_courier_id: null
+                  pickup_point_id: null
+                  shipment_id: null
+                  metadata: '{}'
+                  created_at: '2026-08-24T08:52:11.594335+00:00'
+                  updated_at: '2026-08-24T08:52:12.436755+00:00'
+                  delivery_method: last_mile
+                  delivery_station_id: null
+                  last_mile_fee: 0
+                  fulfilment_type: courier
+                  environment: production
+                  items:
+                    - id: 49ba3d69-638e-49cf-a0ce-b067167c8034
+                      sku: SKU-1
+                      name: Running shoes
+                      quantity: 1
+                      unit_price: 5000
+                      total_price: 5000
+                      metadata: '{}'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1163,13 +1559,56 @@ paths:
       tags:
         - Returns
       summary: List your returns
+      description: |
+        List your returns, newest first. Page with `limit` (default 50, max 100) and `offset`;
+        the response's `pagination` block tells you whether more pages exist and the
+        `next_offset` to request.
+      parameters:
+        - $ref: '#/components/parameters/PageLimit'
+        - $ref: '#/components/parameters/PageOffset'
       responses:
         '200':
-          description: Returns.
+          description: A page of returns.
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  returns:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                returns:
+                  - id: f8a5a7dc-0fd3-450e-8ff2-ec7c3f449ac3
+                    return_number: RET-20260819-26028
+                    order_id: d2af394c-d899-4b95-8a0a-c2c122118fe5
+                    status: resolved
+                    reason: defective
+                    resolution: exchange
+                    liability_party: merchant
+                    refund_amount: null
+                    created_at: '2026-08-19T19:22:36.017177+00:00'
+                  - id: 7adc27f5-2907-416d-8009-00417976bafe
+                    return_number: RET-20260819-80149
+                    order_id: 982992a3-3829-4078-bc0f-ecde4c98d5a6
+                    status: resolved
+                    reason: damaged_in_transit
+                    resolution: refund
+                    liability_party: courier
+                    refund_amount: 5000
+                    created_at: '2026-08-19T19:22:30.030585+00:00'
+                meta:
+                  count: 2
+                pagination:
+                  limit: 2
+                  offset: 0
+                  has_more: true
+                  next_offset: 2
+        '400':
+          $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '429':
@@ -1196,6 +1635,33 @@ paths:
             application/json:
               schema:
                 type: object
+              example:
+                return:
+                  id: c9ad959e-2d5a-4caa-a812-bf387e071560
+                  return_number: RET-20260723-82980
+                  merchant_company_id: 7d94c9e8-0000-0000-0000-000000000000
+                  order_id: 5b3b25fd-cb3a-48c2-9351-d163862fba26
+                  shipment_id: 47b5ce1f-859a-455f-9edb-38a9a65530a6
+                  end_customer_id: null
+                  status: requested
+                  reason: changed_mind
+                  resolution: null
+                  liability_party: customer
+                  customer_note: null
+                  merchant_note: null
+                  reverse_shipment_id: null
+                  replacement_shipment_id: null
+                  refund_amount: null
+                  refund_reference: null
+                  window_expires_at: '2026-07-30T19:23:57.176285+00:00'
+                  requested_at: '2026-07-23T19:23:57.176285+00:00'
+                  approved_at: null
+                  received_at: null
+                  resolved_at: null
+                  environment: production
+                  created_at: '2026-07-23T19:23:57.176285+00:00'
+                  updated_at: '2026-07-23T19:23:57.176285+00:00'
+                  items: '[]'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -1249,6 +1715,10 @@ paths:
                     example: approved
                   reverse_shipment_id:
                     type: string
+              example:
+                return_id: c9ad959e-2d5a-4caa-a812-bf387e071560
+                status: approved
+                reverse_shipment_id: 58b796bf-9fe8-4a21-a537-ff2f84c6bd7e
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1269,6 +1739,7 @@ paths:
       tags:
         - Returns
       summary: Reject a return
+      description: Reject a requested return with an optional note to the customer. Requires a secret (sk_) key. Emits `return.rejected`.
       parameters:
         - name: returnId
           in: path
@@ -1298,6 +1769,9 @@ paths:
                   status:
                     type: string
                     example: rejected
+              example:
+                return_id: c79479bf-ca75-48ab-858a-2cc41e10cb8c
+                status: rejected
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1337,6 +1811,9 @@ paths:
                   status:
                     type: string
                     example: received
+              example:
+                return_id: c9ad959e-2d5a-4caa-a812-bf387e071560
+                status: received
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -1503,6 +1980,17 @@ paths:
             application/json:
               schema:
                 type: object
+              example:
+                webhooks:
+                  - id: 21ea36f9-a411-465b-8f62-d22bd02540a1
+                    url: https://example.test/perf-1780835394718
+                    events:
+                      - order.created
+                    is_active: false
+                    created_at: '2026-06-07T12:30:09.456077+00:00'
+                    status: inactive
+                meta:
+                  count: 1
         '401':
           $ref: '#/components/responses/Unauthorized'
         '429':
@@ -1622,6 +2110,9 @@ components:
                 type: string
               amount:
                 type: number
+        distance_overage:
+          type: number
+          description: Door-delivery surcharge for distance beyond the courier's service area (0 for pickup or within the area).
         courier_subtotal:
           type: number
         platform_fee:
@@ -1663,6 +2154,34 @@ components:
           type: string
           format: date-time
           description: Quote expires 2 minutes after creation.
+    RecipientAddress:
+      type: object
+      required:
+        - name
+        - phone
+        - address
+      properties:
+        name:
+          type: string
+          example: Jane Wanjiru
+        phone:
+          type: string
+          example: '+254712345678'
+        address:
+          type: string
+          example: Kenyatta Avenue, Nakuru
+        email:
+          type: string
+          example: jane@example.com
+        city:
+          type: string
+          description: Defaults to the destination city of the quote.
+          example: Nakuru
+        zone:
+          type: string
+        notes:
+          type: string
+          example: Leave with the gatekeeper.
     Address:
       type: object
       properties:
@@ -1828,6 +2347,28 @@ components:
             data:
               type: object
               additionalProperties: true
+    Pagination:
+      type: object
+      description: Paging metadata for a list response.
+      properties:
+        limit:
+          type: integer
+          description: The page size that was applied.
+        offset:
+          type: integer
+          description: The offset that was applied.
+        has_more:
+          type: boolean
+          description: Whether more items exist beyond this page.
+        next_offset:
+          type:
+            - integer
+            - 'null'
+          description: The offset to request for the next page, or null when there are no more items.
+      required:
+        - limit
+        - offset
+        - has_more
     DeliveryMethod:
       type: string
       enum:
@@ -2145,6 +2686,25 @@ components:
       description: The shipment's tracking number (e.g. TLDP-20251003-0001).
       schema:
         type: string
+    PageLimit:
+      name: limit
+      in: query
+      required: false
+      description: Maximum number of items to return (1–100). Defaults to 50.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    PageOffset:
+      name: offset
+      in: query
+      required: false
+      description: Number of items to skip, for paging. Defaults to 0. Use the response's `pagination.next_offset` to fetch the next page.
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
     WebhookId:
       name: webhookId
       in: path
