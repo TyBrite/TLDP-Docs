@@ -28,39 +28,66 @@ const status = await publicClient.tracking.trackShipment({
   trackingNumber: 'TLDP-7H3K9Q',
 });
 
-console.log(status.status);          // e.g. 'out_for_delivery'
-console.log(status.recipient_city);  // 'Nairobi'
-console.log(status.courier);         // courier name
+console.log(status.status);               // e.g. 'out_for_delivery'
 console.log(status.estimated_delivery);
+console.log(status.recipient.name, status.recipient.city);
+console.log(status.courier?.name);        // null until a courier is assigned
 
-// Live rider position while in transit:
-if (status.rider_location) {
-  console.log(status.rider_location.lat, status.rider_location.lng);
+// The scan history, oldest first.
+for (const event of status.events) {
+  console.log(event.timestamp, event.status, event.description, event.location);
 }
 ```
 
-**Returns** the current status, recipient city, courier, estimated delivery, and a live `rider_location` while the parcel is in transit.
+**Returns**
 
-<Tip>
-  The live rider location is only present while the shipment is actually on the move (out for delivery / in transit). Before pickup or after delivery it won't be included.
-</Tip>
+| Field | Description |
+| :--- | :--- |
+| `tracking_number` | The number the shipment is tracked by. |
+| `status` | The shipment's current state. |
+| `estimated_delivery` | The projected delivery time, or `null` if none has been set. |
+| `recipient` | `name` and `city` of the addressee — deliberately narrow, since this endpoint is public. |
+| `courier` | `{ name }` of the carrier, or `null` before one is assigned. |
+| `events` | Scan history, oldest first: `timestamp`, `status`, `description`, `location`. |
 
 ## getShipmentTracking
 
 Returns the full chronological **events timeline** for a shipment you own — every status transition from booking through delivery. Use this for detailed audit views or to drive a stepper UI.
 
-<Warning>
-  This requires a **secret key** because it returns the complete history for a shipment in your account. Don't call it from the browser — use [`trackShipment`](#trackshipment) for public-facing pages.
-</Warning>
+<Note>
+  This is keyed on the shipment id rather than the tracking number, so it identifies a shipment in
+  your own account and returns its complete record. Either key type can read it;
+  [`trackShipment`](#trackshipment) remains the endpoint for a page shown to a recipient, since it
+  needs only the tracking number and returns a narrower view.
+</Note>
 
 ```typescript
 const tracking = await client.tracking.getShipmentTracking({
-  shipmentId: 'shp_a1b2c3',
+  shipmentId: 'a1b2c3d4-0000-0000-0000-000000000000',
 });
 
+console.log(tracking.status);
+
+// A timestamp per state, null for any the shipment has not reached.
+console.log(tracking.full_timeline.picked_up_at);
+console.log(tracking.full_timeline.delivered_at);
+console.log(tracking.full_timeline.estimated_delivery);
+
 for (const event of tracking.events ?? []) {
-  console.log(event.timestamp, event.status, event.description);
+  console.log(event.created_at, event.event_type, event.description, event.location_text);
 }
 ```
 
-**Returns** the detailed tracking-events timeline for the shipment, ordered chronologically.
+**Returns**
+
+| Field | Description |
+| :--- | :--- |
+| `shipment_id` | The shipment queried. |
+| `tracking_number` | The number the shipment is tracked by. |
+| `status` | The shipment's current state. |
+| `full_timeline` | One timestamp per state — `created_at`, `payment_confirmed_at`, `assigned_at`, `picked_up_at`, `in_transit_at`, `delivered_at` — plus `estimated_delivery`. A state not yet reached is `null`. |
+| `events` | Every scan, oldest first, with `created_at`, `event_type`, `description`, `location_text`, `lat`, `lng` and `metadata`. |
+
+The two views differ in shape as well as in what they expose: an event here carries
+`created_at`/`event_type` and coordinates, where the public view flattens the same record to
+`timestamp`/`status` and a text location.
