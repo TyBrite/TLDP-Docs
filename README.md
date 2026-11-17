@@ -1,47 +1,19 @@
-# TLDP-Docs
+# TLDP-Docs (archived)
 
-Documentation for the **TLDP API** (Tybrite Logistics Developer Platform), built
-with [Mintlify](https://mintlify.com) and published at
-**https://tldp.tybritelabs.com/docs**.
+This repository is archived. The TLDP documentation is published as the TLDP product on the
+Galactic Core documentation site:
 
-## Structure
+**https://docs.tybritelabs.com/tldp**
 
-```
-TLDP-Docs/
-├── docs.json                 # Mintlify config (theme + navigation)
-├── openapi.yaml              # API spec — drives the API Reference
-├── sdk-source/               # Reference copy of the SDK source (read-only)
-├── index.mdx                 # Landing
-├── quickstart.mdx            # First request, end to end
-├── authentication.mdx        # API keys: secret vs publishable, test vs live
-├── webhooks.mdx              # Events, payload, signature verification
-├── api-reference/
-│   └── introduction.mdx      # Conventions + errors (the rest is from openapi.yaml)
-└── sdk/
-    ├── introduction.mdx       # SDK install + client + idioms
-    └── api-reference/classes/ # One page per SDK service
-        ├── OrdersService.mdx
-        ├── ShipmentsService.mdx
-        ├── RatesService.mdx
-        ├── TrackingService.mdx
-        ├── ProofOfDeliveryService.mdx
-        ├── ReturnsService.mdx
-        ├── WebhooksService.mdx
-        └── SystemService.mdx
-```
+| Content | New location |
+|---|---|
+| Guides, how it works, webhooks | `GC-docs/tldp/` |
+| OpenAPI specification | `GC-docs/tldp/openapi.yaml` |
+| TypeScript SDK pages | `GC-docs/tldp/sdk/` |
+| SDK reference source | `GC-docs/tldp/sdk-source/` (refreshed from the SDK repository with `npm run sync:docs`) |
+| Plain-text index | `GC-docs/tldp/llms.txt` |
 
-## Two kinds of reference
+The former address `tldp.tybritelabs.com/docs` is retired. Parcel tracking pages at
+`tldp.tybritelabs.com/track/...` are unchanged.
 
-- **API Reference** is generated from `openapi.yaml`.
-- **TypeScript SDK** pages are handwritten guides for the `@tybrite-labs/tldp-sdk`
-  client — examples, return shapes, and idioms.
-
-## Develop locally
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) and preview from
-the folder containing `docs.json`:
-
-```bash
-npm i -g mint
-mint dev          # preview at http://localhost:3000
-```
+Open issues and edits belong in the GC-docs repository.
